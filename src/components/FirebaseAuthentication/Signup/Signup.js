@@ -1,0 +1,157 @@
+import React, { useState } from "react";
+import { useContext } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { AuthContext } from "../../../Context/AuthProvider/AuthProvider";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const Signup = () => {
+	const { createUser, updateUserProfile } = useContext(AuthContext);
+	const [errorMessageDisplay, setErrorMessageDisplay] = useState("");
+	const [errorMessageDisplaycode, setErrorMessageDisplaycode] = useState("");
+	const [userName, setUserName] = useState();
+	const [userPhoto, setUserPhoto] = useState();
+	console.log(createUser);
+
+	const getFormValue = (e) => {
+		e.preventDefault();
+		const form = e.target;
+		const name = form.name.value;
+		const photourl = form.photo.value;
+		const email = form.email.value;
+		const password = form.password.value;
+
+		setUserName(name);
+		setUserPhoto(photourl);
+
+		createUser(email, password)
+			.then((result) => {
+				const user = result.user;
+				console.log(user);
+				hadlerupdateUserProfile({ name, photourl });
+				form.reset();
+				toast(" User  created Successfully! !", { autoClose: 200 });
+			})
+			.catch((error) => {
+				const errorCode = error.code;
+				const errorMessage = error.message;
+				console.log(errorMessage);
+				toast.warn(" profile created error  !", { autoClose: 200 });
+				setErrorMessageDisplay(errorMessage);
+				setErrorMessageDisplaycode(errorCode);
+				form.reset();
+			});
+	};
+
+	const hadlerupdateUserProfile = ({ name, photourl }) => {
+		const profile = {
+			displayName: name,
+			photoURL: photourl,
+		};
+		updateUserProfile(profile)
+			.then((result) => {
+				toast("Profile updated! !", { autoClose: 200 });
+
+				// Profile updated!
+				// ...
+			})
+
+			.catch((error) => {
+				const errorMessage = error.message;
+				toast.warn(errorMessage);
+				// An error occurred
+				// ...
+			});
+	};
+
+	return (
+		<div>
+			<div className="hero min-h-fit bg-base-200">
+				<div className="hero-content flex-col lg:flex-row-reverse">
+					<div className="text-center lg:text-left">
+						<h1 className="text-5xl font-bold">Sign Up now!</h1>
+						<p className="py-6">
+							Please Sign up! to see the content
+						</p>
+					</div>
+					<div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+						<form onSubmit={getFormValue} className="card-body">
+							<div className="form-control">
+								<label className="label">
+									<span className="label-text">Name</span>
+								</label>
+								<input
+									type="text"
+									placeholder="name"
+									className="input input-bordered"
+									name="name"
+								/>
+							</div>
+							<div className="form-control">
+								<label className="label">
+									<span className="label-text">
+										Photo-URL
+									</span>
+								</label>
+								<input
+									type="text"
+									placeholder="Profile Photo Url"
+									className="input input-bordered"
+									Name="photo"
+								/>
+							</div>
+							<div className="form-control">
+								<label className="label">
+									<span className="label-text">Email</span>
+								</label>
+								<input
+									type="text"
+									placeholder="email"
+									className="input input-bordered"
+									Name="email"
+								/>
+							</div>
+							<div className="form-control">
+								<label className="label">
+									<span className="label-text">Password</span>
+								</label>
+								<input
+									type="text"
+									placeholder="password"
+									className="input input-bordered"
+									Name="password"
+								/>
+								<label className="label">
+									<small className="text-red-500">
+										{errorMessageDisplay}
+									</small>
+									{/* <small>{errorMessageDisplaycode}</small> */}
+								</label>
+								<label className="label">
+									Already have an account?
+									<Link
+										to="/login"
+										className="label-text-alt link link-hover  border border-red shadow m-1 btn btn-sm">
+										Login
+									</Link>
+								</label>
+							</div>
+							<div className="form-control mt-6">
+								<button
+									onClick={hadlerupdateUserProfile}
+									type="submit"
+									className="btn btn-primary">
+									Sign up
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<ToastContainer />
+		</div>
+	);
+};
+
+export default Signup;
